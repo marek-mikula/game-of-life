@@ -7,7 +7,7 @@ const options = {
 	canvas: {
 		height: 600,
 		width: 1200,
-		startingPopulation: 50,
+		startingPopulation: 1,
 		background: {
 			R: 203,
 			G: 255,
@@ -19,11 +19,6 @@ const options = {
 		width: 4,
 		height: 4,
 		diameter: 4,
-		background: {
-			R: 37,
-			G: 92,
-			B: 17,
-		}
 	},
 
 	/**
@@ -217,7 +212,7 @@ function spawnCell(num, x = null, y = null, genes = null) {
 }
 
 /**
- * Cell object
+ * Cell object constructor
  * @param x
  * @param y
  * @param genes
@@ -231,11 +226,17 @@ function Cell(x, y, genes) {
 	this.moveY = 0;
 	this.moveX = 0;
 
+	this.gender = getGenderByChance();
+
 	this.width = options.cells.width;
 	this.height = options.cells.height;
 	this.diameter = options.cells.diameter;
 
-	this.background = options.cells.background;
+	this.color = {
+		R: '',
+		G: '',
+		B: '',
+	};
 
 	this.update = function() {
 
@@ -246,9 +247,27 @@ function Cell(x, y, genes) {
 	 */
 	this.draw = function() {
 		let ctx = canvas.ctx;
-		ctx.fillStyle = "rgb("+ this.background.R +","+ this.background.G +","+ this.background.B +")";
+		ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 	};
+}
+
+/**
+ * Functions picks one gender object by its chance
+ */
+function getGenderByChance() {
+	let arr = []; // pole ze kterého budu vybírat pohlaví
+	$.each(options.relationships.genders, function(index, gender) {
+		for(let a = 0; a < options.relationships.genders[index].chance ; a++) {
+			arr.push(index);
+		}
+	});
+
+	let n = randomInt(0, arr.length - 1);
+
+	let gender = options.relationships.genders[arr[n]];
+
+	console.log(gender);
 }
 
 /**
