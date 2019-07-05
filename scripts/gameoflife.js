@@ -3,15 +3,15 @@ const author = 'Marek Mikula';
 
 const options = {
 	wrapperSelector: '#game',
-	frequency: 50,
+	frequency: 1,
 	canvas: {
 		height: 600,
 		width: 1200,
-		startingPopulation: 50,
+		startingPopulation: 100,
 		background: {
-			R: 203,
-			G: 255,
-			B: 189,
+			R: 0,
+			G: 0,
+			B: 0,
 		},
 	},
 	cells: {
@@ -19,11 +19,6 @@ const options = {
 		width: 4,
 		height: 4,
 		diameter: 4,
-		background: {
-			R: 37,
-			G: 92,
-			B: 17,
-		}
 	},
 
 	/**
@@ -41,8 +36,8 @@ const options = {
 					2: true,
 				},
 				interest: {
-					2: 10,
 					1: 2,
+					2: 10,
 				},
 				color: {
 					R: 66,
@@ -60,8 +55,8 @@ const options = {
 					2: false,
 				},
 				interest: {
-					2: 10,
 					1: 2,
+					2: 10,
 				},
 				color: {
 					R: 245,
@@ -160,7 +155,7 @@ function Canvas() {
 		let self = this;
 
 		self.ctx.textBaseline = "top";
-		self.ctx.fillStyle = "black";
+		self.ctx.fillStyle = "white";
 		self.ctx.textAlign = "left";
 		self.ctx.font = "10px Arial";
 		self.ctx.fillText('Version: ' + version,15,15);
@@ -181,7 +176,7 @@ function Canvas() {
 
 			self.ctx.fillStyle = "rgb("+ gender.color.R +","+ gender.color.G +","+ gender.color.B +")";
 			self.ctx.fillRect(15, 95 + (i * 20), 10, 10);
-			self.ctx.fillStyle = "black";
+			self.ctx.fillStyle = "white";
 			self.ctx.fillText(description,30,95 + (i * 20));
 		});
 
@@ -217,7 +212,53 @@ function spawnCell(num, x = null, y = null, genes = null) {
 }
 
 /**
- * Cell object
+ * Functions picks one gender object by its chance
+ */
+function getGenderByChance() {
+	let arr = []; // pole ze kterého budu vybírat pohlaví
+	$.each(options.relationships.genders, function(index, gender) {
+		for(let a = 0; a < options.relationships.genders[index].chance ; a++) {
+			arr.push(index);
+		}
+	});
+
+	let n = randomInt(0, arr.length - 1);
+
+	/**
+	 * Copy object! No reference!
+	 */
+	let gender = { ...options.relationships.genders[arr[n]] };
+
+	/**
+	 * We will choose interest from array of interest
+	 * {
+	 * 	id: chance,
+	 * 	...
+	 * }
+	 */
+
+	arr = [];
+
+	$.each(gender.interest, function(id, chance) {
+		for(let i = 0; i < chance; i++) {
+			arr.push(id);
+		}
+	});
+
+	n = randomInt(0, arr.length - 1);
+
+	let interest = arr[n];
+
+	let canHaveKids = gender.kids[n];
+
+	gender.kids = canHaveKids;
+	gender.interest = interest;
+
+	return gender;
+}
+
+/**
+ * Cell object constructor
  * @param x
  * @param y
  * @param genes
@@ -231,11 +272,17 @@ function Cell(x, y, genes) {
 	this.moveY = 0;
 	this.moveX = 0;
 
+	this.gender = getGenderByChance();
+
 	this.width = options.cells.width;
 	this.height = options.cells.height;
 	this.diameter = options.cells.diameter;
 
-	this.background = options.cells.background;
+	this.color = {
+		R: this.gender.color.R,
+		G: this.gender.color.G,
+		B: this.gender.color.B,
+	};
 
 	this.update = function() {
 
@@ -246,9 +293,24 @@ function Cell(x, y, genes) {
 	 */
 	this.draw = function() {
 		let ctx = canvas.ctx;
-		ctx.fillStyle = "rgb("+ this.background.R +","+ this.background.G +","+ this.background.B +")";
+		ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 	};
+}
+
+/**
+ * Gets object from array by parameter name and value
+ */
+function getObjectFromArrayByParam(array, param, value) {
+	let item = array.filter(function(element) {
+		return element[param] === value;
+	});
+
+	if(item.length === 1) {
+		item = item[0];
+	}
+
+	return item;
 }
 
 /**
