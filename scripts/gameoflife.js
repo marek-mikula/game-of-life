@@ -24,7 +24,7 @@ const options = {
 		shape: 'circle',
 		width: 4,
 		height: 4,
-		diameter: 4,
+		radius: 2,
 		chanceOfChangingDirection: 20,
 	},
 
@@ -288,7 +288,7 @@ function Cell(x, y, genes) {
 
 	this.width = options.cells.width;
 	this.height = options.cells.height;
-	this.diameter = options.cells.diameter;
+	this.radius = options.cells.radius;
 
 	this.parent = null;
 
@@ -332,24 +332,47 @@ function Cell(x, y, genes) {
 	this.draw = function() {
 		let ctx = canvas.ctx;
 		ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
-		ctx.fillRect(this.x, this.y, this.width, this.height);
+
+		if(options.cells.shape === 'square') {
+			ctx.fillRect(this.x, this.y, this.width, this.height);
+		} else if (options.cells.shape === 'circle') {
+			ctx.beginPath();
+			ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+			ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
+			ctx.fill();
+		}
+		
 	};
 
 	this.move = function() {
 		this.x += this.moveX;
 		this.y += this.moveY;
-
-		if(this.x + options.cells.width < 0) {
-			this.x = options.canvas.width;
-		}
-		if(this.x > options.canvas.width) {
-			this.x = 0 - options.cells.width;
-		}
-		if(this.y + options.cells.height < 0) {
-			this.y = options.canvas.height;
-		}
-		if(this.y > options.canvas.height) {
-			this.y = 0 - options.cells.height;
+		if(options.cells.shape === 'square') {
+			if(this.x + options.cells.width < 0) {
+				this.x = options.canvas.width;
+			}
+			if(this.x > options.canvas.width) {
+				this.x = 0 - options.cells.width;
+			}
+			if(this.y + options.cells.height < 0) {
+				this.y = options.canvas.height;
+			}
+			if(this.y > options.canvas.height) {
+				this.y = 0 - options.cells.height;
+			}
+		} else if (options.cells.shape === 'circle') {
+			if(this.x + options.cells.radius < 0) {
+				this.x = options.canvas.width + options.cells.radius;
+			}
+			if(this.x - options.cells.radius > options.canvas.width) {
+				this.x = 0 - options.cells.radius;
+			}
+			if(this.y + options.cells.radius < 0) {
+				this.y = options.canvas.height + options.cells.radius;
+			}
+			if(this.y - options.cells.radius > options.canvas.height) {
+				this.y = 0 - options.cells.radius;
+			}
 		}
 	};
 }
@@ -374,7 +397,7 @@ function getObjectFromArrayByParam(array, param, value) {
  */
 function getRandomX() {
 	if(options.cells.shape === 'circle') {
-		return randomInt(options.canvas.width - (options.cells.diameter / 2), 0);
+		return randomInt(options.canvas.width - (options.cells.radius), 0);
 	} else if (options.cells.shape === 'square') {
 		return randomInt(options.canvas.width - options.cells.width, 0);
 	}
@@ -385,7 +408,7 @@ function getRandomX() {
  */
 function getRandomY() {
 	if(options.cells.shape === 'circle') {
-		return randomInt(options.canvas.height - (options.cells.diameter / 2), 0);
+		return randomInt(options.canvas.height - (options.cells.radius), 0);
 	} else if (options.cells.shape === 'square') {
 		return randomInt(options.canvas.height - options.cells.height, 0);
 	}
