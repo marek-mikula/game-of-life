@@ -13,7 +13,7 @@ const options = {
 	canvas: {
 		height: 600,
 		width: 1200,
-		startingPopulation: 100,
+		startingPopulation: 1000 ,
 		background: {
 			R: 0,
 			G: 0,
@@ -423,3 +423,17 @@ function getRandomY() {
 function randomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+//ovladání 
+$(document).keydown(function(e) {
+    //stop evoluce
+    if(e.which == 32)  {
+        if(interval) {
+            clearInterval(interval);
+            interval = false;
+        }
+        else {
+            interval = setInterval(update, options.frequency);
+        }
+    }
+})
