@@ -7,9 +7,13 @@ const author = 'Marek Mikula';
 const randomWalk = 0;
 const followParent = 1;
 
+var frequency = 50;
+
 const options = {
 	wrapperSelector: '#game',
-	frequency: 50,
+	frequency_change: 5,
+	frequency_min: 20,
+	frequency_max: 80,
 	canvas: {
 		height: 600,
 		width: 1200,
@@ -135,7 +139,7 @@ function Canvas() {
 		 */
 		spawnCell(options.canvas.startingPopulation);
 
-		interval = setInterval(update,options.frequency);
+		interval = setInterval(update,frequency);
 	};
 
 	this.createCanvas = function() {
@@ -433,7 +437,31 @@ $(document).keydown(function(e) {
             interval = false;
         }
         else {
-            interval = setInterval(update, options.frequency);
+            interval = setInterval(update, frequency);
         }
-    }
+	}
+
+	/**
+	 * We are slowing the simulation
+	 */
+	if(e.which == 37) {
+		if(frequency + options.frequency_change <= options.frequency_max) {
+			clearInterval(interval);
+			frequency = frequency + options.frequency_change;
+			interval = setInterval(update, frequency);
+			console.log(frequency);
+		}
+	}
+	
+	/**
+	 * We are adding speed
+	 */
+	if(e.which == 39) {
+		if(frequency - options.frequency_change >= options.frequency_min) {
+			clearInterval(interval);
+			frequency = frequency - options.frequency_change;
+			interval = setInterval(update, frequency);
+			console.log(frequency);
+		}
+	}
 })
