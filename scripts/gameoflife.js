@@ -1,9 +1,15 @@
 const version = '1.0.0';
 const author = 'Marek Mikula';
 
+/**
+ * Move types
+ */
+const randomWalk = 0;
+const followParent = 1;
+
 const options = {
 	wrapperSelector: '#game',
-	frequency: 1,
+	frequency: 50,
 	canvas: {
 		height: 600,
 		width: 1200,
@@ -19,6 +25,7 @@ const options = {
 		width: 4,
 		height: 4,
 		diameter: 4,
+		chanceOfChangingDirection: 20,
 	},
 
 	/**
@@ -90,7 +97,7 @@ function update() {
 	canvas.descriptions();
 
 	$.each(cells, function(i, element) {
-		element.draw();
+		element.update();
 	});
 }
 
@@ -160,12 +167,13 @@ function Canvas() {
 		self.ctx.font = "10px Arial";
 		self.ctx.fillText('Version: ' + version,15,15);
 		self.ctx.fillText('Author: ' + author,15,35);
-		self.ctx.fillText('Available genders:',15,55);
 
 		/**
-		 * living cells
+		 * Living cells
 		 */
-		self.ctx.fillText('Living cells: ' + cells.length ,15,75);
+		self.ctx.fillText('Living cells: ' + cells.length ,15,55);
+
+		self.ctx.fillText('Available genders:',15,75);
 
 		/**
 		 * Show available genders
@@ -272,11 +280,19 @@ function Cell(x, y, genes) {
 	this.moveY = 0;
 	this.moveX = 0;
 
+	this.moveType = randomWalk;
+
+	this.moveToCords = null;
+
 	this.gender = getGenderByChance();
 
 	this.width = options.cells.width;
 	this.height = options.cells.height;
 	this.diameter = options.cells.diameter;
+
+	this.parent = null;
+
+	this.children = [];
 
 	this.color = {
 		R: this.gender.color.R,
@@ -284,8 +300,30 @@ function Cell(x, y, genes) {
 		B: this.gender.color.B,
 	};
 
+	/**
+	 * This method is called once every iteration of interval
+	 * There should be all methods that is needed to update the cell
+	 */
 	this.update = function() {
+		this.updateMove();
+		this.move();
 
+		/**
+		 * another stuff to do
+		 */
+
+		 this.draw();
+	};
+
+	this.updateMove = function() {
+		if(this.moveType === randomWalk) {
+			let chanceDirection = randomInt(0,100) < options.cells.chanceOfChangingDirection;
+
+			if(chanceDirection) {
+				this.moveX = randomInt(-1, 1);
+				this.moveY = randomInt(-1, 1);
+			}
+		}
 	};
 
 	/**
@@ -295,6 +333,24 @@ function Cell(x, y, genes) {
 		let ctx = canvas.ctx;
 		ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
 		ctx.fillRect(this.x, this.y, this.width, this.height);
+	};
+
+	this.move = function() {
+		this.x += this.moveX;
+		this.y += this.moveY;
+
+		if(this.x + options.cells.width < 0) {
+			this.x = options.canvas.width;
+		}
+		if(this.x > options.canvas.width) {
+			this.x = 0 - options.cells.width;
+		}
+		if(this.y + options.cells.height < 0) {
+			this.y = options.canvas.height;
+		}
+		if(this.y > options.canvas.height) {
+			this.y = 0 - options.cells.height;
+		}
 	};
 }
 
