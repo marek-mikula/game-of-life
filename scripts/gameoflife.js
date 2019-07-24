@@ -2,12 +2,39 @@ const version = '1.0.0';
 const author = 'Marek Mikula';
 
 /**
- * Move types
+ * Chore types
  */
 const randomWalk = 0;
 const followParent = 1;
+const lurkAround = 2;
+const doNothing = 3;
 
-var frequency = 50;
+/**
+ * This is object where all the activities of cells
+ * are defined
+ * The "this" is proxied into the function so the
+ * reference always references to the selected cell
+ *
+ * Chore can be passed to cell with some additional data
+ * used in the chore
+ * Data can be passed as function which returns object or null
+ *
+ * @type {{"0": {fn: chores.0.fn}}}
+ */
+const chores = {
+	0 : {
+		fn: function() {
+			let chanceDirection = randomInt(0,100) < options.cells.chanceOfChangingDirection;
+
+			if(chanceDirection) {
+				this.moveX = randomInt(-1, 1);
+				this.moveY = randomInt(-1, 1);
+			}
+		},
+	},
+};
+
+let frequency = 50;
 
 const options = {
 	wrapperSelector: '#game',
@@ -15,9 +42,9 @@ const options = {
 	frequency_min: 20,
 	frequency_max: 80,
 	canvas: {
-		height: 600,
-		width: 1200,
-		startingPopulation: 1000 ,
+		height: 400,
+		width: 1000,
+		startingPopulation: 100 ,
 		background: {
 			R: 0,
 			G: 0,
@@ -78,6 +105,8 @@ const options = {
 		]
 	}
 };
+
+let id_counter = 0;
 
 /**
  * Main variable for interval
@@ -219,7 +248,8 @@ function spawnCell(num, x = null, y = null, genes = null) {
 	for(let i = 0; i < num; i++) {
 		let xCord = x === null ? getRandomX() : x;
 		let yCord = y === null ? getRandomY() : y;
-		cells.push ( new Cell(xCord, yCord, genes) );
+		cells.push ( new Cell(xCord, yCord, id_counter, genes) );
+		id_counter ++;
 	}
 }
 
@@ -273,10 +303,13 @@ function getGenderByChance() {
  * Cell object constructor
  * @param x
  * @param y
+ * @param id
  * @param genes
  * @constructor
  */
-function Cell(x, y, genes) {
+function Cell(x, y, id, genes) {
+
+	this.id = id;
 
 	this.x = x;
 	this.y = y;
@@ -284,17 +317,17 @@ function Cell(x, y, genes) {
 	this.moveY = 0;
 	this.moveX = 0;
 
-	this.moveType = randomWalk;
-
-	this.moveToCords = null;
-
 	this.gender = getGenderByChance();
 
 	this.width = options.cells.width;
 	this.height = options.cells.height;
 	this.radius = options.cells.radius;
 
+	this.chore = assignChore(0, this),
+
 	this.parent = null;
+
+	this.siblings = [];
 
 	this.children = [];
 
@@ -302,6 +335,7 @@ function Cell(x, y, genes) {
 		R: this.gender.color.R,
 		G: this.gender.color.G,
 		B: this.gender.color.B,
+		A: 1,
 	};
 
 	/**
@@ -309,7 +343,7 @@ function Cell(x, y, genes) {
 	 * There should be all methods that is needed to update the cell
 	 */
 	this.update = function() {
-		this.updateMove();
+		this.doChores();
 		this.move();
 
 		/**
@@ -319,23 +353,25 @@ function Cell(x, y, genes) {
 		 this.draw();
 	};
 
-	this.updateMove = function() {
-		if(this.moveType === randomWalk) {
-			let chanceDirection = randomInt(0,100) < options.cells.chanceOfChangingDirection;
-
-			if(chanceDirection) {
-				this.moveX = randomInt(-1, 1);
-				this.moveY = randomInt(-1, 1);
-			}
+	/**
+	 * Function proxies selected chore and
+	 * invokes it
+	 */
+	this.doChores = function() {
+		if (this.chore) {
+			let choreFunc = $.proxy(this.chore.fn, this);
+			choreFunc();
+		} else {
+			return false;
 		}
-	};
+	},
 
 	/**
 	 * Draws the cell to the canvas
 	 */
 	this.draw = function() {
 		let ctx = canvas.ctx;
-		ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
+		ctx.fillStyle = "rgba("+ this.color.R +","+ this.color.G +","+ this.color.B +"," + this.color.A + ")";
 
 		if(options.cells.shape === 'square') {
 			ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -348,6 +384,9 @@ function Cell(x, y, genes) {
 		
 	};
 
+	/**
+	 * Moves with cell by selected move angle
+	 */
 	this.move = function() {
 		this.x += this.moveX;
 		this.y += this.moveY;
@@ -388,11 +427,9 @@ function getObjectFromArrayByParam(array, param, value) {
 	let item = array.filter(function(element) {
 		return element[param] === value;
 	});
-
 	if(item.length === 1) {
 		item = item[0];
 	}
-
 	return item;
 }
 
@@ -404,6 +441,25 @@ function getRandomX() {
 		return randomInt(options.canvas.width - (options.cells.radius), 0);
 	} else if (options.cells.shape === 'square') {
 		return randomInt(options.canvas.width - options.cells.width, 0);
+	}
+}
+
+/**
+ * Assigns a chore to cell
+ * Returns null if chore doesnt exist
+ * @param chore
+ * @param context Cell
+ * @return Object|null
+ */
+function assignChore(chore, context) {
+	if (typeof chores[chore] !== 'undefined' && chores[chore]) {
+		let selectedChore = {...chores[chore]};
+		if(typeof selectedChore['data'] !== 'undefined' && typeof selectedChore['data'] === 'function') {
+			selectedChore['data'] = $.proxy(selectedChore['data'](), context);
+		}
+		return selectedChore;
+	} else {
+		return null;
 	}
 }
 
@@ -431,7 +487,7 @@ function randomInt(min, max) {
 //ovladání 
 $(document).keydown(function(e) {
     //stop evoluce
-    if(e.which == 32)  {
+    if(e.which === 32)  {
         if(interval) {
             clearInterval(interval);
             interval = false;
@@ -444,24 +500,22 @@ $(document).keydown(function(e) {
 	/**
 	 * We are slowing the simulation
 	 */
-	if(e.which == 37) {
+	if(e.which === 37) {
 		if(frequency + options.frequency_change <= options.frequency_max) {
 			clearInterval(interval);
 			frequency = frequency + options.frequency_change;
 			interval = setInterval(update, frequency);
-			console.log(frequency);
 		}
 	}
 	
 	/**
 	 * We are adding speed
 	 */
-	if(e.which == 39) {
+	if(e.which === 39) {
 		if(frequency - options.frequency_change >= options.frequency_min) {
 			clearInterval(interval);
 			frequency = frequency - options.frequency_change;
 			interval = setInterval(update, frequency);
-			console.log(frequency);
 		}
 	}
 })
