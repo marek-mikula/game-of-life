@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="826a5ba7-c0f8-4cf4-bdd9-d85ed62c9bf4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/gameoflife.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/gameoflife.js" afterDir="false" />
-    </list>
+    <list default="true" id="826a5ba7-c0f8-4cf4-bdd9-d85ed62c9bf4" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,11 +13,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/gameoflife.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-9153">
+            <state relative-caret-position="27">
               <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
-              <folding>
-                <element signature="e#171#411#0" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -62,7 +55,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="331" />
+    <option name="x" value="330" />
     <option name="y" value="-12" />
     <option name="width" value="1401" />
     <option name="height" value="987" />
@@ -72,29 +65,11 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="game-of-life" type="b2602c69:ProjectViewProjectNode" />
-              <item name="game-of-life" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="game-of-life" type="b2602c69:ProjectViewProjectNode" />
-              <item name="game-of-life" type="462c0819:PsiDirectoryNode" />
-              <item name="scripts" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../e2-webova-aplikace" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
@@ -122,11 +97,12 @@
       <updated>1562277619471</updated>
       <workItem from="1562277620724" duration="11688000" />
       <workItem from="1563553549427" duration="2503000" />
+      <workItem from="1563632229026" duration="37000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14191000" />
+    <option name="totallyTimeSpent" value="14228000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -188,11 +164,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/gameoflife.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-9153">
+        <state relative-caret-position="27">
           <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
-          <folding>
-            <element signature="e#171#411#0" />
-          </folding>
         </state>
       </provider>
     </entry>
