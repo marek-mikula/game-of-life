@@ -36,6 +36,8 @@ const chores = {
 
 let frequency = 50;
 
+let second = 1000;
+
 const options = {
 	wrapperSelector: '#game',
 	frequency_change: 5,
@@ -132,6 +134,8 @@ function update() {
 	$.each(cells, function(i, element) {
 		element.update();
 	});
+
+	console.log(randonmIntND(0,100));
 }
 
 /**
@@ -153,6 +157,14 @@ function Canvas() {
 	this.width = options.canvas.width;
 
 	this.ctx = null;
+
+	this.time = {
+		seconds: 0,
+		minutes: 0,
+		hours: 0,
+		days: 0,
+		years: 0,
+	};
 
 	this.start = function() {
 		/**
@@ -208,6 +220,10 @@ function Canvas() {
 
 		self.ctx.fillText('Available genders:',15,75);
 
+		self.ctx.fillText('Time: ' + this.time.hours + ':' + this.time.minutes, 15, 95);
+		self.ctx.fillText('Days: ' + this.time.days, 15, 115);
+		self.ctx.fillText('Yeas: ' + this.time.years, 15, 135);
+
 		/**
 		 * Show available genders
 		 */
@@ -216,9 +232,9 @@ function Canvas() {
 			let description = typeof gender.description === 'undefined' ? 'Undefined' : gender.description;
 
 			self.ctx.fillStyle = "rgb("+ gender.color.R +","+ gender.color.G +","+ gender.color.B +")";
-			self.ctx.fillRect(15, 95 + (i * 20), 10, 10);
+			self.ctx.fillRect(15, 155 + (i * 20), 10, 10);
 			self.ctx.fillStyle = "white";
-			self.ctx.fillText(description,30,95 + (i * 20));
+			self.ctx.fillText(description,30,155 + (i * 20));
 		});
 
 		// this.ctx.fillText(canvas.time.value(),15,45);
@@ -316,6 +332,11 @@ function Cell(x, y, id, genes) {
 
 	this.moveY = 0;
 	this.moveX = 0;
+
+	this.stats = {
+		age: 0,
+		dieAt: randonmIntND(0,110),
+	};
 
 	this.gender = getGenderByChance();
 
@@ -482,6 +503,27 @@ function getRandomY() {
  */
 function randomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Gets random num by normal distribution formula
+ * @param {*} min 
+ * @param {*} max 
+ * @param {*} skew 
+ */
+function randonmIntND(min, max, skew = 1) {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+
+    num = num / 10.0 + 0.5; // Translate to 0 -> 1
+    if (num > 1 || num < 0) num = randonmIntND(min, max, skew); // resample between 0 and 1 if out of range
+    num = Math.pow(num, skew); // Skew
+    num *= max - min; // Stretch to fill range
+	num += min; // offset to min
+	
+	return Math.round(num);
 }
 
 //ovladání 
