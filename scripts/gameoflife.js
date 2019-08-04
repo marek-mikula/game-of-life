@@ -36,8 +36,6 @@ const chores = {
 
 let frequency = 50;
 
-let second = 1000;
-
 const options = {
 	wrapperSelector: '#game',
 	frequency_change: 5,
@@ -129,13 +127,11 @@ let canvas = new Canvas();
  */
 function update() {
 	canvas.clear();
+	canvas.updateTime();
 	canvas.descriptions();
-
 	$.each(cells, function(i, element) {
 		element.update();
 	});
-
-	console.log(randonmIntND(0,100));
 }
 
 /**
@@ -183,6 +179,30 @@ function Canvas() {
 		interval = setInterval(update,frequency);
 	};
 
+	
+	/**
+	 * Updated time once for every loop iteration
+	 * by .25year
+	 */
+	this.updateTime = function() {
+		/*
+		this.time.minutes += 10;
+		if (this.time.minutes > 59) {
+			this.time.minutes = 0;
+			this.time.hours += 1;
+		}
+		if (this.time.hours > 23) {
+			this.time.hours = 0;
+			this.time.days += 1;
+		}
+		if (this.time.days > 364) {
+			this.time.days = 0;
+			this.time.years += 1;
+		}
+		*/
+		this.time.years += .25;
+	}
+
 	this.createCanvas = function() {
 		this.canvas.attr('height', this.height);
 		this.canvas.attr('width', this.width);
@@ -222,7 +242,7 @@ function Canvas() {
 
 		self.ctx.fillText('Time: ' + this.time.hours + ':' + this.time.minutes, 15, 95);
 		self.ctx.fillText('Days: ' + this.time.days, 15, 115);
-		self.ctx.fillText('Yeas: ' + this.time.years, 15, 135);
+		self.ctx.fillText('Years: ' + this.time.years.toFixed(2) , 15, 135);
 
 		/**
 		 * Show available genders
