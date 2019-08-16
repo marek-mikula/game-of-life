@@ -182,7 +182,7 @@ function Canvas() {
 	
 	/**
 	 * Updated time once for every loop iteration
-	 * by .25year
+	 * by .25 year
 	 */
 	this.updateTime = function() {
 		/*
@@ -327,7 +327,15 @@ function getGenderByChance() {
 
 	let interest = arr[n];
 
-	let canHaveKids = gender.kids[n];
+	/**
+	 * We choose if gender can have kids
+	 * with its interest
+	 * @type {boolean}
+	 */
+	let canHaveKids = false;
+	if (typeof gender.kids[interest] !== 'undefined') {
+		canHaveKids = gender.kids[interest]
+	}
 
 	gender.kids = canHaveKids;
 	gender.interest = interest;
@@ -354,6 +362,7 @@ function Cell(x, y, id, genes) {
 	this.moveX = 0;
 
 	this.stats = {
+		bornAt: canvas.time.years,
 		age: 0,
 		dieAt: randonmIntND(0,110),
 	};
@@ -384,6 +393,7 @@ function Cell(x, y, id, genes) {
 	 * There should be all methods that is needed to update the cell
 	 */
 	this.update = function() {
+		this.getOlder();
 		this.doChores();
 		this.move();
 
@@ -393,6 +403,16 @@ function Cell(x, y, id, genes) {
 
 		 this.draw();
 	};
+
+	/**
+	 * calculates new cell age
+	 */
+	this.getOlder = function() {
+		this.stats.age = canvas.time.years - this.stats.bornAt;
+		let alpha = (this.stats.age * 100) / this.stats.dieAt;
+
+		this.color.A = alpha;
+	}
 
 	/**
 	 * Function proxies selected chore and
