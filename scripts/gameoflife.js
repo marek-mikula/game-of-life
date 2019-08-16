@@ -183,6 +183,7 @@ function Canvas() {
 	/**
 	 * Updated time once for every loop iteration
 	 * by .25 year
+	 *
 	 */
 	this.updateTime = function() {
 		/*
@@ -409,10 +410,9 @@ function Cell(x, y, id, genes) {
 	 */
 	this.getOlder = function() {
 		this.stats.age = canvas.time.years - this.stats.bornAt;
-		let alpha = (this.stats.age * 100) / this.stats.dieAt;
-
-		this.color.A = alpha;
-	}
+		// let alpha = (this.stats.age * 100) / (100 * this.stats.dieAt);
+		// this.color.A = 1 - alpha;
+	};
 
 	/**
 	 * Function proxies selected chore and
