@@ -5,9 +5,6 @@ const author = 'Marek Mikula';
  * Chore types
  */
 const randomWalk = 0;
-const followParent = 1;
-const lurkAround = 2;
-const doNothing = 3;
 
 /**
  * This is object where all the activities of cells
@@ -44,7 +41,7 @@ const options = {
 	canvas: {
 		height: 400,
 		width: 1000,
-		startingPopulation: 100 ,
+		startingPopulation: 100,
 		background: {
 			R: 0,
 			G: 0,
@@ -57,6 +54,10 @@ const options = {
 		height: 4,
 		radius: 2,
 		chanceOfChangingDirection: 20,
+		/**
+		 * Decides if cells are going to lose opacity with aging
+		 */
+		opacityAging: true,
 	},
 
 	/**
@@ -127,8 +128,8 @@ let canvas = new Canvas();
  */
 function update() {
 	canvas.clear();
+	canvas.updateTime();
 	canvas.descriptions();
-
 	$.each(cells, function(i, element) {
 		element.update();
 	});
@@ -154,6 +155,14 @@ function Canvas() {
 
 	this.ctx = null;
 
+	this.time = {
+		seconds: 0,
+		minutes: 0,
+		hours: 0,
+		days: 0,
+		years: 0,
+	};
+
 	this.start = function() {
 		/**
 		 * Build the canvas
@@ -170,6 +179,31 @@ function Canvas() {
 
 		interval = setInterval(update,frequency);
 	};
+
+	
+	/**
+	 * Updated time once for every loop iteration
+	 * by .25 year
+	 *
+	 */
+	this.updateTime = function() {
+		/*
+		this.time.minutes += 10;
+		if (this.time.minutes > 59) {
+			this.time.minutes = 0;
+			this.time.hours += 1;
+		}
+		if (this.time.hours > 23) {
+			this.time.hours = 0;
+			this.time.days += 1;
+		}
+		if (this.time.days > 364) {
+			this.time.days = 0;
+			this.time.years += 1;
+		}
+		*/
+		this.time.years += .25;
+	}
 
 	this.createCanvas = function() {
 		this.canvas.attr('height', this.height);
@@ -208,6 +242,10 @@ function Canvas() {
 
 		self.ctx.fillText('Available genders:',15,75);
 
+		self.ctx.fillText('Time: ' + this.time.hours + ':' + this.time.minutes, 15, 95);
+		self.ctx.fillText('Days: ' + this.time.days, 15, 115);
+		self.ctx.fillText('Years: ' + this.time.years.toFixed(2) , 15, 135);
+
 		/**
 		 * Show available genders
 		 */
@@ -216,9 +254,9 @@ function Canvas() {
 			let description = typeof gender.description === 'undefined' ? 'Undefined' : gender.description;
 
 			self.ctx.fillStyle = "rgb("+ gender.color.R +","+ gender.color.G +","+ gender.color.B +")";
-			self.ctx.fillRect(15, 95 + (i * 20), 10, 10);
+			self.ctx.fillRect(15, 155 + (i * 20), 10, 10);
 			self.ctx.fillStyle = "white";
-			self.ctx.fillText(description,30,95 + (i * 20));
+			self.ctx.fillText(description,30,155 + (i * 20));
 		});
 
 		// this.ctx.fillText(canvas.time.value(),15,45);
@@ -291,7 +329,15 @@ function getGenderByChance() {
 
 	let interest = arr[n];
 
-	let canHaveKids = gender.kids[n];
+	/**
+	 * We choose if gender can have kids
+	 * with its interest
+	 * @type {boolean}
+	 */
+	let canHaveKids = false;
+	if (typeof gender.kids[interest] !== 'undefined') {
+		canHaveKids = gender.kids[interest]
+	}
 
 	gender.kids = canHaveKids;
 	gender.interest = interest;
@@ -317,13 +363,19 @@ function Cell(x, y, id, genes) {
 	this.moveY = 0;
 	this.moveX = 0;
 
+	this.stats = {
+		bornAt: canvas.time.years,
+		age: 0,
+		dieAt: randonmIntND(0,110),
+	};
+
 	this.gender = getGenderByChance();
 
 	this.width = options.cells.width;
 	this.height = options.cells.height;
 	this.radius = options.cells.radius;
 
-	this.chore = assignChore(0, this),
+	this.chore = assignChore(randomWalk, this);
 
 	this.parent = null;
 
@@ -343,6 +395,7 @@ function Cell(x, y, id, genes) {
 	 * There should be all methods that is needed to update the cell
 	 */
 	this.update = function() {
+		this.getOlder();
 		this.doChores();
 		this.move();
 
@@ -351,6 +404,31 @@ function Cell(x, y, id, genes) {
 		 */
 
 		 this.draw();
+	};
+
+	/**
+	 * Function which is fired when cell dies
+	 * Deletes the whole object and removes current cell
+	 * from array of cells
+	 */
+	this.die = function() {
+		removeObjectFromArrayByParam(cells, 'id', this.id);
+	};
+
+	/**
+	 * calculates new cell age
+	 */
+	this.getOlder = function() {
+		this.stats.age = canvas.time.years - this.stats.bornAt;
+
+		if (this.stats.age >= this.stats.dieAt) {
+			this.die();
+		}
+
+		if (options.cells.opacityAging) {
+			let alpha = (this.stats.age * 100) / (100 * this.stats.dieAt);
+			this.color.A = 1 - alpha;
+		}
 	};
 
 	/**
@@ -378,7 +456,7 @@ function Cell(x, y, id, genes) {
 		} else if (options.cells.shape === 'circle') {
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-			ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
+			ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +"," + this.color.A + ")";
 			ctx.fill();
 		}
 		
@@ -434,6 +512,21 @@ function getObjectFromArrayByParam(array, param, value) {
 }
 
 /**
+ * Removes object from array by its parameter => value key
+ * pair
+ *
+ * @param array
+ * @param param
+ * @param value
+ * @returns {*}
+ */
+function removeObjectFromArrayByParam(array, param, value) {
+	array.filter(function(element) {
+		return element[param] !== value;
+	});
+}
+
+/**
  * generates random X coordinate
  */
 function getRandomX() {
@@ -482,6 +575,28 @@ function getRandomY() {
  */
 function randomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Gets random num by normal distribution formula
+ * @param {*} min 
+ * @param {*} max 
+ * @param {*} skew 
+ */
+function randonmIntND(min, max, skew = 1) {
+    let u = 0;
+    let v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+
+    num = num / 10.0 + 0.5; // Translate to 0 -> 1
+    if (num > 1 || num < 0) num = randonmIntND(min, max, skew); // resample between 0 and 1 if out of range
+    num = Math.pow(num, skew); // Skew
+    num *= max - min; // Stretch to fill range
+	num += min; // offset to min
+	
+	return Math.round(num);
 }
 
 //ovladání 
