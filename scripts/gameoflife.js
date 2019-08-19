@@ -34,7 +34,7 @@ const chores = {
 	},
 };
 
-let frequency = 50;
+let frequency = 5;
 
 const options = {
 	wrapperSelector: '#game',
@@ -44,7 +44,7 @@ const options = {
 	canvas: {
 		height: 400,
 		width: 1000,
-		startingPopulation: 100 ,
+		startingPopulation: 1000 ,
 		background: {
 			R: 0,
 			G: 0,
@@ -406,10 +406,24 @@ function Cell(x, y, id, genes) {
 	};
 
 	/**
+	 * Function which is fired when cell dies
+	 * Deletes the whole object and removes current cell
+	 * from array of cells
+	 */
+	this.die = function() {
+		removeObjectFromArrayByParam(cells, 'id', this.id);
+	};
+
+	/**
 	 * calculates new cell age
 	 */
 	this.getOlder = function() {
 		this.stats.age = canvas.time.years - this.stats.bornAt;
+
+		if (this.stats.age >= this.stats.dieAt) {
+			this.die();
+		}
+
 		// let alpha = (this.stats.age * 100) / (100 * this.stats.dieAt);
 		// this.color.A = 1 - alpha;
 	};
@@ -492,6 +506,21 @@ function getObjectFromArrayByParam(array, param, value) {
 		item = item[0];
 	}
 	return item;
+}
+
+/**
+ * Removes object from array by its parameter => value key
+ * pair
+ *
+ * @param array
+ * @param param
+ * @param value
+ * @returns {*}
+ */
+function removeObjectFromArrayByParam(array, param, value) {
+	array.filter(function(element) {
+		return element[param] !== value;
+	});
 }
 
 /**
