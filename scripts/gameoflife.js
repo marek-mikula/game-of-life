@@ -5,9 +5,6 @@ const author = 'Marek Mikula';
  * Chore types
  */
 const randomWalk = 0;
-const followParent = 1;
-const lurkAround = 2;
-const doNothing = 3;
 
 /**
  * This is object where all the activities of cells
@@ -34,7 +31,7 @@ const chores = {
 	},
 };
 
-let frequency = 5;
+let frequency = 50;
 
 const options = {
 	wrapperSelector: '#game',
@@ -44,7 +41,7 @@ const options = {
 	canvas: {
 		height: 400,
 		width: 1000,
-		startingPopulation: 1000 ,
+		startingPopulation: 100,
 		background: {
 			R: 0,
 			G: 0,
@@ -57,6 +54,10 @@ const options = {
 		height: 4,
 		radius: 2,
 		chanceOfChangingDirection: 20,
+		/**
+		 * Decides if cells are going to lose opacity with aging
+		 */
+		opacityAging: true,
 	},
 
 	/**
@@ -374,7 +375,7 @@ function Cell(x, y, id, genes) {
 	this.height = options.cells.height;
 	this.radius = options.cells.radius;
 
-	this.chore = assignChore(0, this),
+	this.chore = assignChore(randomWalk, this);
 
 	this.parent = null;
 
@@ -424,8 +425,10 @@ function Cell(x, y, id, genes) {
 			this.die();
 		}
 
-		// let alpha = (this.stats.age * 100) / (100 * this.stats.dieAt);
-		// this.color.A = 1 - alpha;
+		if (options.cells.opacityAging) {
+			let alpha = (this.stats.age * 100) / (100 * this.stats.dieAt);
+			this.color.A = 1 - alpha;
+		}
 	};
 
 	/**
@@ -453,7 +456,7 @@ function Cell(x, y, id, genes) {
 		} else if (options.cells.shape === 'circle') {
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-			ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +")";
+			ctx.fillStyle = "rgb("+ this.color.R +","+ this.color.G +","+ this.color.B +"," + this.color.A + ")";
 			ctx.fill();
 		}
 		
@@ -581,7 +584,8 @@ function randomInt(min, max) {
  * @param {*} skew 
  */
 function randonmIntND(min, max, skew = 1) {
-    var u = 0, v = 0;
+    let u = 0;
+    let v = 0;
     while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
     while(v === 0) v = Math.random();
     let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
