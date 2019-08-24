@@ -412,11 +412,14 @@ function Cell(x, y, id, genes) {
 	 * from array of cells
 	 */
 	this.die = function() {
-		removeObjectFromArrayByParam(cells, 'id', this.id);
+		cells = removeObjectFromArrayByParam(cells, 'id', this.id);
 	};
 
 	/**
 	 * calculates new cell age
+     *
+     * if the cell is too old the die method is called
+     * and the cell is removed from array of all cells
 	 */
 	this.getOlder = function() {
 		this.stats.age = canvas.time.years - this.stats.bornAt;
@@ -521,7 +524,7 @@ function getObjectFromArrayByParam(array, param, value) {
  * @returns {*}
  */
 function removeObjectFromArrayByParam(array, param, value) {
-	array.filter(function(element) {
+	return array.filter(function(element) {
 		return element[param] !== value;
 	});
 }
