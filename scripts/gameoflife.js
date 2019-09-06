@@ -5,6 +5,7 @@ const author = 'Marek Mikula';
  * Chore types
  */
 const randomWalk = 0;
+const findPartner = 1;
 
 /**
  * This is object where all the activities of cells
@@ -15,6 +16,9 @@ const randomWalk = 0;
  * Chore can be passed to cell with some additional data
  * used in the chore
  * Data can be passed as function which returns object or null
+ *
+ * Every chore can have reset function which resets the cell when the
+ * chore is changing to a different chore
  *
  * @type {{"0": {fn: chores.0.fn}}}
  */
@@ -28,8 +32,38 @@ const chores = {
 				this.moveY = randomInt(-1, 1);
 			}
 		},
+        reset: function() {
+		    this.moveX = 0;
+		    this.moveY = 0;
+        }
 	},
+    1 : {
+	    fn: function() {
+
+        }
+    }
 };
+
+/**
+ * Chore stack defines how the chores will be selected
+ * Always the first chore which return true in selected property will be selected
+ *
+ * Values can be boolean or functions which returns boolean value
+ *
+ * @type {*[]}
+ */
+let choreStack = [
+	{
+		id: 1,
+		selected: function() {
+			return !this.relationships.foundPartner && this.stats.age >= this.relationships.startLookingForPartner;
+		}
+	},
+	{
+		id: 0,
+		selected: true,
+	}
+];
 
 let frequency = 50;
 
@@ -49,6 +83,10 @@ const options = {
 		},
 	},
 	cells: {
+		/**
+		 * shape of cells
+		 * accepted values are ["circle", "square"]
+		 */
 		shape: 'circle',
 		width: 4,
 		height: 4,
@@ -60,10 +98,10 @@ const options = {
 		opacityAging: true,
 	},
 
-	/**
+	relationships: {
+		/**
 	 * All the possible genders
 	 */
-	relationships: {
 		genders: [
 			//Man
 			{
@@ -103,10 +141,15 @@ const options = {
 					B: 221,
 				}
 			}
-		]
+		],
+        lookForGenderBetween: [15,20]
 	}
 };
 
+/**
+ * Counter for cell ids
+ * @type {number}
+ */
 let id_counter = 0;
 
 /**
@@ -295,7 +338,7 @@ function spawnCell(num, x = null, y = null, genes = null) {
  * Functions picks one gender object by its chance
  */
 function getGenderByChance() {
-	let arr = []; // pole ze kterého budu vybírat pohlaví
+	let arr = [];
 	$.each(options.relationships.genders, function(index, gender) {
 		for(let a = 0; a < options.relationships.genders[index].chance ; a++) {
 			arr.push(index);
@@ -369,6 +412,11 @@ function Cell(x, y, id, genes) {
 		dieAt: randonmIntND(0,110),
 	};
 
+	this.relationships = {
+	    foundPartner : false,
+        startLookingForPartner: randomInt(options.relationships.lookForGenderBetween[0], options.relationships.lookForGenderBetween[1]),
+    };
+
 	this.gender = getGenderByChance();
 
 	this.width = options.cells.width;
@@ -396,6 +444,7 @@ function Cell(x, y, id, genes) {
 	 */
 	this.update = function() {
 		this.getOlder();
+		this.selectChore();
 		this.doChores();
 		this.move();
 
@@ -405,6 +454,27 @@ function Cell(x, y, id, genes) {
 
 		 this.draw();
 	};
+
+	this.selectChore = function() {
+		let cell = this;
+	    $.each(choreStack, function(index, chore) {
+	    	let selected = false;
+			if (typeof chore.selected === 'function') {
+				selected = $.proxy(chore.selected, cell);
+				selected = selected();
+			} else {
+				selected = chore.selected;
+			}
+			if (selected) {
+				if (typeof cell.chore.reset === 'function' && chore.id !== cell.chore.id) {
+					let resetFunc = $.proxy(cell.chore.reset, cell);
+					resetFunc();
+				}
+				cell.chore = assignChore(chore.id, cell);
+				return false;
+			}
+		});
+    };
 
 	/**
 	 * Function which is fired when cell dies
@@ -553,6 +623,7 @@ function assignChore(chore, context) {
 		if(typeof selectedChore['data'] !== 'undefined' && typeof selectedChore['data'] === 'function') {
 			selectedChore['data'] = $.proxy(selectedChore['data'](), context);
 		}
+		selectedChore['id'] = chore;
 		return selectedChore;
 	} else {
 		return null;
