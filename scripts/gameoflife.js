@@ -22,8 +22,9 @@ const findPartner = 1;
  *
  * @type {{"0": {fn: chores.0.fn}}}
  */
-const chores = {
-	0 : {
+const chores = [
+	{
+		id: 0,
 		fn: function() {
 			let chanceDirection = randomInt(0,100) < options.cells.chanceOfChangingDirection;
 
@@ -32,17 +33,18 @@ const chores = {
 				this.moveY = randomInt(-1, 1);
 			}
 		},
-        reset: function() {
-		    this.moveX = 0;
-		    this.moveY = 0;
-        }
+		reset: function() {
+			this.moveX = 0;
+			this.moveY = 0;
+		}
 	},
-    1 : {
-	    fn: function() {
-
-        }
-    }
-};
+	{
+		id: 1,
+		fn: function() {
+			this.moveY = 10;
+		}
+	}
+];
 
 /**
  * Chore stack defines how the chores will be selected
@@ -618,12 +620,12 @@ function getRandomX() {
  * @return Object|null
  */
 function assignChore(chore, context) {
-	if (typeof chores[chore] !== 'undefined' && chores[chore]) {
-		let selectedChore = {...chores[chore]};
+	let selectedChore = getObjectFromArrayByParam(chores, 'id', chore);
+	if (typeof selectedChore === 'object') {
+		selectedChore = {...selectedChore};
 		if(typeof selectedChore['data'] !== 'undefined' && typeof selectedChore['data'] === 'function') {
 			selectedChore['data'] = $.proxy(selectedChore['data'](), context);
 		}
-		selectedChore['id'] = chore;
 		return selectedChore;
 	} else {
 		return null;
