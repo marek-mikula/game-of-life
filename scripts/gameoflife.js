@@ -24,7 +24,7 @@ const findPartner = 1;
  */
 const chores = [
 	{
-		id: 0,
+		id: randomWalk,
 		fn: function() {
 			let chanceDirection = randomInt(0,100) < options.cells.chanceOfChangingDirection;
 
@@ -39,7 +39,7 @@ const chores = [
 		}
 	},
 	{
-		id: 1,
+		id: findPartner,
 		fn: function() {
 			this.moveY = 10;
 		}
@@ -56,13 +56,13 @@ const chores = [
  */
 let choreStack = [
 	{
-		id: 1,
+		id: findPartner,
 		selected: function() {
 			return !this.relationships.foundPartner && this.stats.age >= this.relationships.startLookingForPartner;
 		}
 	},
 	{
-		id: 0,
+		id: randomWalk,
 		selected: true,
 	}
 ];
@@ -415,8 +415,14 @@ function Cell(x, y, id, genes) {
 	};
 
 	this.relationships = {
+		partner: null,
 	    foundPartner : false,
-        startLookingForPartner: randomInt(options.relationships.lookForGenderBetween[0], options.relationships.lookForGenderBetween[1]),
+		startLookingForPartner: randomInt(options.relationships.lookForGenderBetween[0], options.relationships.lookForGenderBetween[1]),
+		findNearestPartner: function() {
+			$.each(cells, function(i,e) {
+				
+			});
+		}
     };
 
 	this.gender = getGenderByChance();
@@ -674,6 +680,34 @@ function randonmIntND(min, max, skew = 1) {
 	
 	return Math.round(num);
 }
+
+/**
+ * Gets distance between two cells, even trough walls,
+ * determine which way is better and shorter
+ * @param {Cell} cell1 
+ * @param {Cell} cell2 
+ */
+function getDistance(cell1, cell2)
+ {
+	let closerLeft = null;
+	let closerRight = null;
+
+	let distanceBetweenX = Math.abs(cell1.x - cell2.x);
+	let distanceTroughWallsX = 0;
+
+	if (cell1.x < cell2.x) {
+		distanceTroughWallsX += cell1.x;
+	} else {
+		distanceTroughWallsX += cell2.x;
+	}
+
+	if ((options.canvas.width - cell1.x) < (options.canvas.width - cell2.x)) {
+		distanceTroughWallsX += (options.canvas.width - cell1.x);
+	} else {
+		distanceTroughWallsX += (options.canvas.width - cell2.x);
+	}
+
+};
 
 //ovladání 
 $(document).keydown(function(e) {
