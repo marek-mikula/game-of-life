@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="826a5ba7-c0f8-4cf4-bdd9-d85ed62c9bf4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/game-of-life.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game-of-life.js" beforeDir="false" afterPath="$PROJECT_DIR$/game-of-life.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/gameoflife.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/jquery.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/y" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/y.pub" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,7 +159,7 @@
       <option name="presentableId" value="Default" />
       <updated>1562277619471</updated>
       <workItem from="1562277620724" duration="11688000" />
-      <workItem from="1619241825424" duration="3295000" />
+      <workItem from="1619241825424" duration="12229000" />
     </task>
     <servers />
   </component>
@@ -211,6 +204,18 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/game-of-life.js</url>
+          <line>252</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/jquery.js">
