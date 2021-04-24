@@ -97,6 +97,11 @@ const PATTERN_HWSS = [ // heavy-weight space-ship
     [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD],
     [DEAD, DEAD, ALIVE, ALIVE, DEAD, DEAD, DEAD],
 ];
+const PATTERN_PENTOMINO = [
+    [DEAD, ALIVE, ALIVE],
+    [ALIVE, ALIVE, DEAD],
+    [DEAD, ALIVE, DEAD],
+];
 
 const OPTIONS = {
     /**
@@ -105,7 +110,7 @@ const OPTIONS = {
      * Canvas is updated in the frequency of
      * this number of milliseconds
      */
-    frequency: 50, // in milliseconds
+    frequency: 10, // in milliseconds
     canvas: {
         height: 100,
         width: 100,
@@ -117,7 +122,7 @@ const OPTIONS = {
     /**
      * value: "custom" or "random"
      */
-    mode: MODE_RANDOM,
+    mode: MODE_CUSTOM,
     /**
      * value: array of objects
      *
@@ -131,34 +136,9 @@ const OPTIONS = {
      */
     customElements: [
         {
-            x: 5,
-            y: 5,
-            pattern: PATTER_PENTA_DECATHLON
-        },
-        {
-            x: 15,
-            y: 15,
-            pattern: PATTERN_PULSAR
-        },
-        {
-            x: 35,
-            y: 35,
-            pattern: PATTERN_GLIDER
-        },
-        {
             x: 55,
             y: 55,
-            pattern: PATTERN_LWSS
-        },
-        {
-            x: 75,
-            y: 75,
-            pattern: PATTERN_MWSS
-        },
-        {
-            x: 95,
-            y: 95,
-            pattern: PATTERN_HWSS
+            pattern: PATTERN_PENTOMINO
         },
     ],
     /**
@@ -489,9 +469,31 @@ class Game {
     #canvas = new Canvas();
     #interval = null;
 
+    #iteration = 0;
+
     start() {
         this.setPauseEvent();
         this.startInterval();
+    }
+
+    description() {
+        let ctx = this.#canvas.getContext();
+
+        let string = `Iteration: ${this.#iteration}`;
+
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(
+            13,
+            13,
+            string.length * 6,
+            14
+        );
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "black";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+        ctx.fillText(string, 15, 15);
     }
 
     /**
@@ -542,6 +544,8 @@ class Game {
      * it rewrites the
      */
     update() {
+        this.#iteration++;
+
         let iterator = this.#canvas.getIterator();
 
         for (let spot of iterator) {
@@ -553,6 +557,8 @@ class Game {
         for (let spot of iterator) {
             spot.draw();
         }
+
+        this.description();
     }
 }
 
