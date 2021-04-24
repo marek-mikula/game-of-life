@@ -110,7 +110,7 @@ const OPTIONS = {
      * Canvas is updated in the frequency of
      * this number of milliseconds
      */
-    frequency: 10, // in milliseconds
+    frequency: 25, // in milliseconds
     canvas: {
         height: 100,
         width: 100,
@@ -476,6 +476,10 @@ class Game {
         this.startInterval();
     }
 
+    /**
+     * Renders a small box with the number of iteration
+     * in the left top corner of the canvas
+     */
     description() {
         let ctx = this.#canvas.getContext();
 
