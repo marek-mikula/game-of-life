@@ -1,4 +1,10 @@
 const options = {
+    /**
+     * value: number of milliseconds
+     *
+     * Canvas is updated in the frequency of
+     * this number of milliseconds
+     */
     frequency: 50, // in milliseconds
     canvas: {
         height: 100,
@@ -7,7 +13,24 @@ const options = {
     spot: {
         width: 5,
         height: 5,
-    }
+    },
+    /**
+     * value: "custom" or "random"
+     */
+    mode: "random",
+    /**
+     * value: array of elements
+     *
+     * Custom elements setup when "custom" mode is selected
+     */
+    customElements: [],
+    /**
+     * value: 1 - 10
+     *
+     * The higher the value the bigger the chance to create the spot alive
+     * by default.
+     */
+    randomAliveChance: 2
 };
 
 const ALIVE = 1;
@@ -23,32 +46,28 @@ class Canvas {
 
     /**
      * Matrix of spots
+     *
      * @type {[[Spot]]}
      */
     #grid = [];
 
     constructor() {
-        this.setCanvasHeight(this.#height);
-        this.setCanvasWidth(this.#width);
-        this.fillGrid();
+        this.setupCanvas();
+        this.createGrid();
         this.findNeighbours();
     }
 
     /**
-     * @param {Number} height
+     * Sets up the canvas, sets the height and width
      */
-    setCanvasHeight(height) {
-        this.#canvas.setAttribute('height', height);
+    setupCanvas() {
+        this.#canvas.setAttribute('height', this.#height);
+        this.#canvas.setAttribute('width', this.#width);
     }
 
     /**
-     * @param {Number} width
-     */
-    setCanvasWidth(width) {
-        this.#canvas.setAttribute('width', width);
-    }
-
-    /**
+     * Gets the spot by X and Y value
+     *
      * @param {Number} x
      * @param {Number} y
      * @returns Spot
@@ -58,53 +77,73 @@ class Canvas {
     }
 
     /**
+     * Sets the spot to matrix
+     *
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Spot} spot
+     */
+    setSpot(x, y, spot) {
+        this.#grid[x][y] = spot;
+    }
+
+    /**
      * Fills the grid with spots, draw them and loads the neighbours
      */
-    fillGrid() {
-        // Fill grid with spots
+    createGrid() {
         for (let x = 1; x <= this.#width; x++) {
             this.#grid[x] = [];
             for (let y = 1; y <= this.#height; y++) {
-                let state = (Math.floor(Math.random() * 10) + 1) > 1 ? DEAD : ALIVE;
-                let spot = new Spot(x, y, state); // build spot
-                this.#grid[x][y] = spot; // set spot to matrix
-                spot.draw(this.#ctx); // draw the spot
+                this.setSpot(x, y, new Spot(x, y, this));
             }
         }
     }
 
+    /**
+     * Finds all neighbours of the spot
+     *
+     * If we hit the edge of the canvas, count in
+     * the spots on the other side to make canvas
+     * "infinite"
+     */
     findNeighbours() {
-        const iterator = this.getIterator();
-        let spot = iterator.next();
-        while (!spot.done) {
+        let iterator = this.getIterator();
+
+        for (let spot of iterator) {
             for (let NY = 0; NY < 3; NY++) {
                 for (let NX = 0; NX < 3; NX++) {
-                    let neighbourX = (spot.value.getX() - 1) + NX;
-                    let neighbourY = (spot.value.getY() - 1) + NY;
+                    let neighbourX = (spot.getX() - 1) + NX;
+                    let neighbourY = (spot.getY() - 1) + NY;
 
                     // Same spot
                     if (
-                        neighbourX === spot.value.getX() &&
-                        neighbourY === spot.value.getY()
+                        neighbourX === spot.getX() &&
+                        neighbourY === spot.getY()
                     ) {
                         continue;
                     }
 
-                    if (neighbourX < 1 || neighbourX > options.canvas.width) {
-                        continue;
+                    if (neighbourX < 1) {
+                        neighbourX = options.canvas.width;
                     }
 
-                    if (neighbourY < 1 || neighbourY > options.canvas.height) {
-                        continue;
+                    if (neighbourX > options.canvas.width) {
+                        neighbourX = 1;
                     }
 
-                    spot.value.addNeighbour(
+                    if (neighbourY < 1) {
+                        neighbourY = options.canvas.height;
+                    }
+
+                    if (neighbourY > options.canvas.height) {
+                        neighbourY = 1;
+                    }
+
+                    spot.addNeighbour(
                         this.getSpot(neighbourX, neighbourY)
                     );
                 }
             }
-
-            spot = iterator.next();
         }
     }
 
@@ -112,40 +151,54 @@ class Canvas {
         return this.#ctx;
     }
 
+    /**
+     * Creates easy iterator over all Spots
+     * in matrix
+     *
+     * @returns {Generator<Spot, number, *>}
+     */
     * getIterator() {
-        let iterationCount = 0;
-
         for (let x = 1; x <= this.#width; x++) {
             for (let y = 1; y <= this.#height; y++) {
-                iterationCount++;
                 yield this.#grid[x][y];
             }
         }
-
-        return iterationCount;
     }
 }
 
 class Spot {
     #x;
     #y;
-    #state;
 
-    #nextState = null;
+    #canvas;
+
+    #state = null;
+    #nextState;
 
     #width = options.spot.width;
     #height = options.spot.height;
 
+    /**
+     * Array of all neighbours
+     *
+     * @type {[Spot]}
+     */
     #neighbours = [];
 
-    constructor(x, y, state = DEAD) {
+    constructor(x, y, canvas) {
         this.#x = x;
         this.#y = y;
-        this.#nextState = state;
+        this.#canvas = canvas;
+        this.#nextState = this.getDefaultState();
+
+        this.draw(); // Draw spot when constructed
     }
 
-    draw(ctx) {
-        this.#state = this.#nextState;
+    draw() {
+        let ctx = this.#canvas.getContext();
+
+        this.#state = this.#nextState; // flip state
+
         ctx.fillStyle = this.getBackground();
         ctx.fillRect(
             (this.#x * this.#width),
@@ -155,19 +208,14 @@ class Spot {
         );
     }
 
-    getState() {
-        return this.#state;
-    }
-
-    getBackground() {
-        return this.#state === DEAD ? 'white' : 'black';
-    }
-
     addNeighbour(neighbour) {
         this.#neighbours.push(neighbour);
     }
 
-    update() {
+    /**
+     * Calculates next state based of current state
+     */
+    calcNextState() {
         let alive = 0;
         let dead = 0;
 
@@ -187,12 +235,37 @@ class Spot {
         }
     }
 
+    /**
+     * Gets default state for spot. Returns DEAD if in custom
+     * mode because the spot states are then calculated in other
+     * method
+     *
+     * @returns {number}
+     */
+    getDefaultState() {
+        if (options.mode === "custom") {
+            return DEAD;
+        }
+
+        return (Math.floor(Math.random() * 10) + 1) > options.randomAliveChance
+            ? DEAD
+            : ALIVE;
+    }
+
     getX() {
         return this.#x;
     }
 
     getY() {
         return this.#y;
+    }
+
+    getState() {
+        return this.#state;
+    }
+
+    getBackground() {
+        return this.#state === DEAD ? 'white' : 'black';
     }
 }
 
@@ -201,12 +274,15 @@ class Game {
     #interval = null;
 
     start() {
+        this.setPauseEvent();
         this.startInterval();
     }
 
     /**
      * Switches the interval meaning
      * it either stops or releases the interval
+     *
+     * Allows to pause the interval if user wants
      */
     switchInterval() {
         if (this.#interval === null) {
@@ -216,42 +292,52 @@ class Game {
         }
     }
 
+    /**
+     * Starts the interval
+     */
     startInterval() {
         this.#interval = setInterval(this.update.bind(this), options.frequency);
     }
 
+    /**
+     * Clears the interval
+     */
     clearInterval() {
         clearInterval(this.#interval);
         this.#interval = null;
     }
 
+    /**
+     * Set keydown event so user can stop the interval with space
+     */
+    setPauseEvent() {
+        document.addEventListener("keydown", (event) => {
+            if (event.which === 32) {
+                event.preventDefault();
+                this.switchInterval();
+            }
+        });
+    }
+
+    /**
+     * Updates the array of Spots
+     *
+     * First it calculates next states and then
+     * it rewrites the
+     */
     update() {
         let iterator = this.#canvas.getIterator();
-        let spot = iterator.next();
-        while (!spot.done) {
-            spot.value.update();
-            spot = iterator.next();
+
+        for (let spot of iterator) {
+            spot.calcNextState();
         }
 
         iterator = this.#canvas.getIterator();
 
-        spot = iterator.next();
-        while (!spot.done) {
-            spot.value.draw(this.#canvas.getContext());
-            spot = iterator.next();
+        for (let spot of iterator) {
+            spot.draw();
         }
     }
 }
 
-let game = new Game();
-
-game.start(); // Start the game!
-
-/**
- * Set keydown event so user can stop the interval with space
- */
-document.addEventListener("keydown", (event) => {
-    if (event.which === 32) {
-        game.switchInterval();
-    }
-});
+new Game().start(); // Start the game!
