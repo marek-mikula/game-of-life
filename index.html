@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Game of Life</title>
-    </head>
-    <style>
-        #game {
-            display: flex;
-            flex-flow: row nowrap;
-            justify-content: center;
-        }
-    </style>
-    <script src="./scripts/jquery.js"></script>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Langton's ant</title>
+</head>
+<style>
+	body {
+		background-color: rgb(240, 240, 240);
+	}
+	#game {
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: center;
+	}
+</style>
 <body>
-    <div id="game">
-
-    </div>
-    <script src="./scripts/gameoflife.js"></script>
+<div id="game">
+	<canvas id="game-canvas"></canvas>
+</div>
+<script src="game-of-life.js"></script>
 </body>
 </html>
