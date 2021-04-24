@@ -1,4 +1,104 @@
-const options = {
+const MODE_CUSTOM = "custom";
+const MODE_RANDOM = "random";
+
+const ALIVE = 1;
+const DEAD = 0;
+
+// Patterns
+const PATTERN_BLOCK = [
+    [ALIVE, ALIVE],
+    [ALIVE, ALIVE],
+];
+const PATTERN_BEE_HIVE = [
+    [DEAD, ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, DEAD, ALIVE],
+    [DEAD, ALIVE, ALIVE, DEAD]
+];
+const PATTERN_LOAF = [
+    [DEAD, ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD, ALIVE],
+    [DEAD, DEAD, ALIVE, DEAD],
+];
+const PATTERN_BOAT = [
+    [ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD],
+];
+const PATTERN_TUB = [
+    [DEAD, ALIVE, DEAD],
+    [ALIVE, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD],
+];
+const PATTERN_BLINKER = [
+    [ALIVE, ALIVE, ALIVE],
+];
+const PATTERN_TOAD = [
+    [DEAD, ALIVE, ALIVE, ALIVE],
+    [ALIVE, ALIVE, ALIVE, DEAD],
+];
+const PATTERN_BEACON = [
+    [ALIVE, ALIVE, DEAD, DEAD],
+    [ALIVE, ALIVE, DEAD, DEAD],
+    [DEAD, DEAD, ALIVE, ALIVE],
+    [DEAD, DEAD, ALIVE, ALIVE],
+];
+const PATTERN_PULSAR = [
+    [DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD, ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD, DEAD, ALIVE, ALIVE, ALIVE, DEAD, DEAD],
+];
+const PATTER_PENTA_DECATHLON = [
+    [DEAD, DEAD, ALIVE, DEAD, DEAD],
+    [DEAD, ALIVE, ALIVE, ALIVE, DEAD],
+    [ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [DEAD, DEAD, DEAD, DEAD, DEAD],
+    [ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
+    [DEAD, ALIVE, ALIVE, ALIVE, DEAD],
+    [DEAD, DEAD, ALIVE, DEAD, DEAD]
+];
+const PATTERN_GLIDER = [
+    [DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, ALIVE],
+    [DEAD, ALIVE, ALIVE],
+];
+const PATTERN_LWSS = [
+    [DEAD, ALIVE, ALIVE, ALIVE, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, ALIVE],
+    [DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, ALIVE, DEAD],
+];
+const PATTERN_MWSS = [
+    [DEAD, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, ALIVE, DEAD],
+    [DEAD, DEAD, ALIVE, DEAD, DEAD, DEAD],
+];
+const PATTERN_HWSS = [
+    [DEAD, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
+    [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE, DEAD],
+    [DEAD, DEAD, ALIVE, ALIVE, DEAD, DEAD, DEAD],
+];
+
+const OPTIONS = {
     /**
      * value: number of milliseconds
      *
@@ -17,13 +117,50 @@ const options = {
     /**
      * value: "custom" or "random"
      */
-    mode: "random",
+    mode: MODE_CUSTOM,
     /**
-     * value: array of elements
+     * value: array of objects
+     *
+     * {
+     *     x: startingXCord,
+     *     y: startingYCord,
+     *     pattern: ELEMENT CONSTANT
+     * }
      *
      * Custom elements setup when "custom" mode is selected
      */
-    customElements: [],
+    customElements: [
+        {
+            x: 5,
+            y: 5,
+            pattern: PATTER_PENTA_DECATHLON
+        },
+        {
+            x: 15,
+            y: 15,
+            pattern: PATTERN_PULSAR
+        },
+        {
+            x: 35,
+            y: 35,
+            pattern: PATTERN_GLIDER
+        },
+        {
+            x: 55,
+            y: 55,
+            pattern: PATTERN_LWSS
+        },
+        {
+            x: 75,
+            y: 75,
+            pattern: PATTERN_MWSS
+        },
+        {
+            x: 95,
+            y: 95,
+            pattern: PATTERN_HWSS
+        },
+    ],
     /**
      * value: 1 - 10
      *
@@ -33,42 +170,13 @@ const options = {
     randomAliveChance: 2
 };
 
-const ALIVE = 1;
-const DEAD = 0;
-
-// Pattern types
-const PATTERN_BLOCK = [
-    [ALIVE, ALIVE],
-    [ALIVE, ALIVE],
-];
-const PATTERN_BEE_HIVE = [
-    [DEAD, ALIVE, ALIVE, DEAD],
-    [ALIVE, DEAD, DEAD, ALIVE],
-    [DEAD, ALIVE, ALIVE, DEAD]
-];
-const PATTERN_LOAF = [
-    [DEAD, ALIVE, ALIVE, DEAD],
-    [ALIVE, DEAD, DEAD, ALIVE],
-    [DEAD, ALIVE, DEAD, ALIVE],
-];
-const PATTERN_BOAT = [
-    [ALIVE, ALIVE, DEAD],
-    [ALIVE, DEAD, ALIVE],
-    [DEAD, ALIVE, DEAD],
-];
-const PATTERN_TUB = [
-    [DEAD, ALIVE, DEAD],
-    [ALIVE, DEAD, ALIVE],
-    [DEAD, ALIVE, DEAD],
-];
-
 class Canvas {
     #canvas = document.getElementById("game-canvas");
 
     #ctx = this.#canvas.getContext('2d');
 
-    #height = options.canvas.height * options.spot.height;
-    #width = options.canvas.width * options.spot.width;
+    #height = OPTIONS.canvas.height * OPTIONS.spot.height;
+    #width = OPTIONS.canvas.width * OPTIONS.spot.width;
 
     /**
      * Matrix of spots
@@ -81,6 +189,13 @@ class Canvas {
         this.setupCanvas();
         this.createGrid();
         this.findNeighbours();
+
+        // Apply starting patterns if custom mode
+        if (OPTIONS.mode === MODE_CUSTOM) {
+            OPTIONS.customElements.forEach((custom) => {
+                this.applyPattern(custom.x, custom.y, custom.pattern);
+            });
+        }
     }
 
     /**
@@ -119,9 +234,9 @@ class Canvas {
      * Fills the grid with spots, draw them and loads the neighbours
      */
     createGrid() {
-        for (let x = 1; x <= options.canvas.width; x++) {
+        for (let x = 1; x <= OPTIONS.canvas.width; x++) {
             this.#grid[x] = [];
-            for (let y = 1; y <= options.canvas.height; y++) {
+            for (let y = 1; y <= OPTIONS.canvas.height; y++) {
                 this.setSpot(x, y, new Spot(x, y, this));
             }
         }
@@ -135,6 +250,21 @@ class Canvas {
      * "infinite"
      */
     findNeighbours() {
+        /**
+         * [1][2][3]
+         * [4][5][6]
+         * [7][8][9]
+         *
+         * The column we are counting neighbours for
+         * is 5
+         *
+         * First we set the "pointer" to column #1
+         * (spot.getX() - 1) moves pointer up to 2
+         * (spot.getY() - 1) moves pointer left to 1
+         *
+         * Then we iterate columns by shown order
+         *
+         */
         let iterator = this.getIterator();
 
         for (let spot of iterator) {
@@ -144,10 +274,7 @@ class Canvas {
                     let neighbourY = (spot.getY() - 1) + NY;
 
                     // Same spot
-                    if (
-                        neighbourX === spot.getX() &&
-                        neighbourY === spot.getY()
-                    ) {
+                    if (neighbourX === spot.getX() && neighbourY === spot.getY()) {
                         continue;
                     }
 
@@ -168,18 +295,18 @@ class Canvas {
      */
     normalizeCords(x, y) {
         if (x < 1) {
-            x = options.canvas.width;
+            x = OPTIONS.canvas.width;
         }
 
-        if (x > options.canvas.width) {
+        if (x > OPTIONS.canvas.width) {
             x = 1;
         }
 
         if (y < 1) {
-            y = options.canvas.height;
+            y = OPTIONS.canvas.height;
         }
 
-        if (y > options.canvas.height) {
+        if (y > OPTIONS.canvas.height) {
             y = 1;
         }
         return [x, y];
@@ -196,8 +323,8 @@ class Canvas {
      * @returns {Generator<Spot, number, *>}
      */
     * getIterator() {
-        for (let x = 1; x <= options.canvas.width; x++) {
-            for (let y = 1; y <= options.canvas.height; y++) {
+        for (let x = 1; x <= OPTIONS.canvas.width; x++) {
+            for (let y = 1; y <= OPTIONS.canvas.height; y++) {
                 yield this.#grid[x][y];
             }
         }
@@ -212,11 +339,12 @@ class Canvas {
      * @param {[[Number]]} pattern
      */
     applyPattern(x, y, pattern) {
-        pattern.forEach((row) => {
-            row.forEach((state) => {
-                this.getSpot(x, y).setNextState(state);
+        pattern.forEach((row, yIndex) => {
+            row.forEach((state, xIndex) => {
+                let spot = this.getSpot(x + xIndex, y + yIndex);
+                spot.setNextState(state);
+                spot.draw();
             });
-            y++;
         });
     }
 }
@@ -240,8 +368,8 @@ class Spot {
      */
     #nextState;
 
-    #width = options.spot.width;
-    #height = options.spot.height;
+    #width = OPTIONS.spot.width;
+    #height = OPTIONS.spot.height;
 
     /**
      * Array of all neighbours
@@ -264,8 +392,8 @@ class Spot {
         this.#state = this.#nextState; // flip state
         ctx.fillStyle = this.getBackground();
         ctx.fillRect(
-            (this.#x * this.#width),
-            (this.#y * this.#height),
+            ((this.#x - 1) * this.#width),
+            ((this.#y - 1) * this.#height),
             this.#width,
             this.#height
         );
@@ -323,11 +451,11 @@ class Spot {
      * @returns {number}
      */
     getDefaultState() {
-        if (options.mode === "custom") {
+        if (OPTIONS.mode === MODE_CUSTOM) {
             return DEAD;
         }
 
-        return (Math.floor(Math.random() * 10) + 1) > options.randomAliveChance
+        return (Math.floor(Math.random() * 10) + 1) > OPTIONS.randomAliveChance
             ? DEAD
             : ALIVE;
     }
@@ -384,7 +512,7 @@ class Game {
      * Starts the interval
      */
     startInterval() {
-        this.#interval = setInterval(this.update.bind(this), options.frequency);
+        this.#interval = setInterval(this.update.bind(this), OPTIONS.frequency);
     }
 
     /**
