@@ -36,6 +36,32 @@ const options = {
 const ALIVE = 1;
 const DEAD = 0;
 
+// Pattern types
+const PATTERN_BLOCK = [
+    [ALIVE, ALIVE],
+    [ALIVE, ALIVE],
+];
+const PATTERN_BEE_HIVE = [
+    [DEAD, ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, DEAD, ALIVE],
+    [DEAD, ALIVE, ALIVE, DEAD]
+];
+const PATTERN_LOAF = [
+    [DEAD, ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD, ALIVE],
+];
+const PATTERN_BOAT = [
+    [ALIVE, ALIVE, DEAD],
+    [ALIVE, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD],
+];
+const PATTERN_TUB = [
+    [DEAD, ALIVE, DEAD],
+    [ALIVE, DEAD, ALIVE],
+    [DEAD, ALIVE, DEAD],
+];
+
 class Canvas {
     #canvas = document.getElementById("game-canvas");
 
@@ -73,6 +99,7 @@ class Canvas {
      * @returns Spot
      */
     getSpot(x, y) {
+        [x, y] = this.normalizeCords(x, y);
         return this.#grid[x][y];
     }
 
@@ -84,6 +111,7 @@ class Canvas {
      * @param {Spot} spot
      */
     setSpot(x, y, spot) {
+        [x, y] = this.normalizeCords(x, y);
         this.#grid[x][y] = spot;
     }
 
@@ -91,9 +119,9 @@ class Canvas {
      * Fills the grid with spots, draw them and loads the neighbours
      */
     createGrid() {
-        for (let x = 1; x <= this.#width; x++) {
+        for (let x = 1; x <= options.canvas.width; x++) {
             this.#grid[x] = [];
-            for (let y = 1; y <= this.#height; y++) {
+            for (let y = 1; y <= options.canvas.height; y++) {
                 this.setSpot(x, y, new Spot(x, y, this));
             }
         }
@@ -123,28 +151,38 @@ class Canvas {
                         continue;
                     }
 
-                    if (neighbourX < 1) {
-                        neighbourX = options.canvas.width;
-                    }
-
-                    if (neighbourX > options.canvas.width) {
-                        neighbourX = 1;
-                    }
-
-                    if (neighbourY < 1) {
-                        neighbourY = options.canvas.height;
-                    }
-
-                    if (neighbourY > options.canvas.height) {
-                        neighbourY = 1;
-                    }
-
                     spot.addNeighbour(
                         this.getSpot(neighbourX, neighbourY)
                     );
                 }
             }
         }
+    }
+
+    /**
+     * Normalizes cords so we can make the canvas
+     * "infinite"
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {Number[]}
+     */
+    normalizeCords(x, y) {
+        if (x < 1) {
+            x = options.canvas.width;
+        }
+
+        if (x > options.canvas.width) {
+            x = 1;
+        }
+
+        if (y < 1) {
+            y = options.canvas.height;
+        }
+
+        if (y > options.canvas.height) {
+            y = 1;
+        }
+        return [x, y];
     }
 
     getContext() {
@@ -158,11 +196,28 @@ class Canvas {
      * @returns {Generator<Spot, number, *>}
      */
     * getIterator() {
-        for (let x = 1; x <= this.#width; x++) {
-            for (let y = 1; y <= this.#height; y++) {
+        for (let x = 1; x <= options.canvas.width; x++) {
+            for (let y = 1; y <= options.canvas.height; y++) {
                 yield this.#grid[x][y];
             }
         }
+    }
+
+    /**
+     * Applies given pattern to given
+     * position
+     *
+     * @param {Number} x
+     * @param {Number} y
+     * @param {[[Number]]} pattern
+     */
+    applyPattern(x, y, pattern) {
+        pattern.forEach((row) => {
+            row.forEach((state) => {
+                this.getSpot(x, y).setNextState(state);
+            });
+            y++;
+        });
     }
 }
 
@@ -172,7 +227,17 @@ class Spot {
 
     #canvas;
 
+    /**
+     * Current state before redrawing
+     * @type {Number}
+     */
     #state = null;
+
+    /**
+     * Next state that is used when redrawing
+     * the spot
+     * @type {Number}
+     */
     #nextState;
 
     #width = options.spot.width;
@@ -196,9 +261,7 @@ class Spot {
 
     draw() {
         let ctx = this.#canvas.getContext();
-
         this.#state = this.#nextState; // flip state
-
         ctx.fillStyle = this.getBackground();
         ctx.fillRect(
             (this.#x * this.#width),
@@ -208,6 +271,11 @@ class Spot {
         );
     }
 
+    /**
+     * Adds neighbour to the array
+     *
+     * @param {Spot} neighbour
+     */
     addNeighbour(neighbour) {
         this.#neighbours.push(neighbour);
     }
@@ -220,7 +288,7 @@ class Spot {
         let dead = 0;
 
         this.#neighbours.forEach((spot) => {
-            if (spot.getState() === ALIVE) {
+            if (spot.alive()) {
                 alive += 1;
             } else {
                 dead += 1;
@@ -228,11 +296,23 @@ class Spot {
         });
 
         if (this.#state === ALIVE && (alive < 2 || alive > 3)) {
-            this.#nextState = DEAD;
+            this.die();
         }
         if (this.#state === DEAD && alive === 3) {
-            this.#nextState = ALIVE;
+            this.respawn();
         }
+    }
+
+    setNextState(state) {
+        this.#nextState = state;
+    }
+
+    die() {
+        this.setNextState(DEAD);
+    }
+
+    respawn() {
+        this.setNextState(ALIVE);
     }
 
     /**
@@ -266,6 +346,14 @@ class Spot {
 
     getBackground() {
         return this.#state === DEAD ? 'white' : 'black';
+    }
+
+    alive() {
+        return this.getState() === ALIVE;
+    }
+
+    dead() {
+        return this.getState() === DEAD;
     }
 }
 
