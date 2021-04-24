@@ -117,7 +117,7 @@ const OPTIONS = {
     /**
      * value: "custom" or "random"
      */
-    mode: MODE_CUSTOM,
+    mode: MODE_RANDOM,
     /**
      * value: array of objects
      *
@@ -256,11 +256,11 @@ class Canvas {
          * [7][8][9]
          *
          * The column we are counting neighbours for
-         * is 5
+         * is #5
          *
          * First we set the "pointer" to column #1
-         * (spot.getX() - 1) moves pointer up to 2
-         * (spot.getY() - 1) moves pointer left to 1
+         * (spot.getX() - 1) moves pointer up to #2
+         * (spot.getY() - 1) moves pointer left to #1
          *
          * Then we iterate columns by shown order
          *
