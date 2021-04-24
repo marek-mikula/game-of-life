@@ -268,10 +268,10 @@ class Canvas {
         let iterator = this.getIterator();
 
         for (let spot of iterator) {
-            for (let NY = 0; NY < 3; NY++) {
-                for (let NX = 0; NX < 3; NX++) {
-                    let neighbourX = (spot.getX() - 1) + NX;
-                    let neighbourY = (spot.getY() - 1) + NY;
+            for (let y = 0; y < 3; y++) { // value to add to Y axis
+                for (let x = 0; x < 3; x++) { // value to add to X axis
+                    let neighbourX = (spot.getX() - 1) + x;
+                    let neighbourY = (spot.getY() - 1) + y;
 
                     // Same spot
                     if (neighbourX === spot.getX() && neighbourY === spot.getY()) {
