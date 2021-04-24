@@ -77,20 +77,20 @@ const PATTERN_GLIDER = [
     [ALIVE, DEAD, ALIVE],
     [DEAD, ALIVE, ALIVE],
 ];
-const PATTERN_LWSS = [
+const PATTERN_LWSS = [ // light-weight space-ship
     [DEAD, ALIVE, ALIVE, ALIVE, ALIVE],
     [ALIVE, DEAD, DEAD, DEAD, ALIVE],
     [DEAD, DEAD, DEAD, DEAD, ALIVE],
     [ALIVE, DEAD, DEAD, ALIVE, DEAD],
 ];
-const PATTERN_MWSS = [
+const PATTERN_MWSS = [ // medium-weight space-ship
     [DEAD, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
     [ALIVE, DEAD, DEAD, DEAD, DEAD, ALIVE],
     [DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
     [ALIVE, DEAD, DEAD, DEAD, ALIVE, DEAD],
     [DEAD, DEAD, ALIVE, DEAD, DEAD, DEAD],
 ];
-const PATTERN_HWSS = [
+const PATTERN_HWSS = [ // heavy-weight space-ship
     [DEAD, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE, ALIVE],
     [ALIVE, DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
     [DEAD, DEAD, DEAD, DEAD, DEAD, DEAD, ALIVE],
