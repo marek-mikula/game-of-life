@@ -289,6 +289,7 @@ class Canvas {
         if (y > OPTIONS.canvas.height) {
             y = 1;
         }
+        
         return [x, y];
     }
 
